@@ -23,22 +23,14 @@ const query = async (sql, data) => {
     }
 }
 
-const sqlSearchById = (column, id) => {
-    return ` where ${column} = ${id}`
-}
-
-const sqlSearchTextStartsWithInColumn = (column, startsWith) => {
-    return ` where ${column} like '${startsWith}%'`
-}
-
 const sqlSearchByTextInColumn = (column, term) => {
     let queryText = ``
-    if (typeof term === 'string') queryText += ` ${column} regexp '${term}'`
+    if (typeof term === 'string') queryText += ` ${mysql.escape(column)} regexp ${mysql.escape(term)}`
     if (typeof column === 'object' && Array.isArray(column)) {
         queryText += column
         .filter(termObj => termObj.searchTerm)
         .map((termObj, i) => {
-            return ` ${i > 0 ? 'and' : ''} ${termObj.column} regexp '${termObj.searchTerm}'`
+            return ` ${i > 0 ? 'and' : ''} ${termObj.column} regexp ${mysql.escape(termObj.searchTerm)}`
         }).join('')
     }
     return queryText
@@ -57,8 +49,6 @@ const formatDateToDDMMYYYY = (date) => {
 
 module.exports = {
     query,
-    sqlSearchById,
-    sqlSearchTextStartsWithInColumn,
     sqlSearchByTextInColumn,
     formatMMDDYYToSqlFormat,
     formatDateToDDMMYYYY
