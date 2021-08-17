@@ -17,8 +17,8 @@ router.get('/', async (req, res) => {
     }
 
         const results = await api.getEventsData(
-            req.query.size,
-            req.query.pageNum,
+            '' + req.query.size,
+            '' + req.query.pageNum,
             req.query.artist,
             req.query.city,
             req.query.when,

@@ -23,16 +23,17 @@ const query = async (sql, data) => {
     }
 }
 
-const sqlSearchByTextInColumn = (column, term) => {
-    let queryText = ``
-    if (typeof term === 'string') queryText += ` ${mysql.escape(column)} regexp ${mysql.escape(term)}`
-    if (typeof column === 'object' && Array.isArray(column)) {
-        queryText += column
-        .filter(termObj => termObj.searchTerm)
+const sqlSearchByTextInColumn = (queries) => {
+    let queryText = queries.filter(termObj => termObj.searchTerm)
         .map((termObj, i) => {
-            return ` ${i > 0 ? 'and' : ''} ${termObj.column} regexp ${mysql.escape(termObj.searchTerm)}`
+            const prefix = i > 0 ? ' and ' : ''
+            return (
+                prefix
+                + termObj.column
+                + ' regexp '
+                + mysql.escape(termObj.searchTerm)
+            )
         }).join('')
-    }
     return queryText
 }
 

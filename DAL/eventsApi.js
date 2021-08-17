@@ -12,6 +12,7 @@ const getEventsData = async (
     when = null,
     tags = []
 ) => {
+    console.log('city:', typeof city, city);
     const searchQuery = artist || city ? sqlUtils.sqlSearchByTextInColumn([
         { column: 'u.name', searchTerm: artist },
         { column: 'c.name', searchTerm: city },
@@ -32,7 +33,7 @@ const getEventsData = async (
         + ` ${tags.length ? `join events_tags et on e.id = et.event_id` : ''}`
         + ` ${tags.length ? `join tags t on t.id = et.tag_id` : ''}`
         + ` where e.deleted = 0 and ${whenQuery}`
-        + `${searchQuery ? ` and ${mysql.escape(searchQuery)}` : ``}`
+        + `${searchQuery ? ` and ${searchQuery}` : ``}`
         + `${tagsQuery ? ` and ${mysql.escape(tagsQuery)}` : ``}`
         + ` group by e.id`
         + `${tagsQuery ? ` having count(tag_id) = ${[tags].flat().length}` : ``}`
