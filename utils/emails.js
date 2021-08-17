@@ -3,7 +3,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const sendEmail = (to, msg) => {
     const msgDetails = {
-        from: 'neriyarden@gmail.com',
+        from: process.env.COMPANY_EMAIL_ADDRESS,
         to,
         ...msg
     }

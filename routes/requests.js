@@ -12,8 +12,8 @@ router.get('/', async (req, res) => {
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.getRequestsData(
-        req.query.size,
-        req.query.pageNum,
+        parseInt(req.query.size),
+        parseInt(req.query.pageNum),
         req.query.artist,
         req.query.city,
     )

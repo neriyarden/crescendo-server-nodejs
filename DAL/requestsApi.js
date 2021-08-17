@@ -1,6 +1,7 @@
 const sqlUtils = require('../utils/sqlUtils')
 const api = require('./api')
 const sendEmail = require('../utils/emails')
+const mysql = require('mysql2/promise')
 
 
 // get requests data 
@@ -21,15 +22,13 @@ const getRequestsData = async (
         + ` join cities c on c.id = r.city_id`
         + ` left join votes v on v.request_id = r.id`
         + ` where r.deleted = 0`
-        + `${searchQuery ? ` and ${searchQuery}` : ``}`
+        + `${searchQuery ? ` and ${mysql.escape(searchQuery)}` : ``}`
         + ` group by r.id`
         + ` order by votes desc`
-        + ` ${size > 0 ? ` limit ${size}` : ``}`
-        + ` ${size > 0 && pageNum ? ` offset ${(pageNum - 1) * size}` : ``}`
+        + ` ${size > 0 ? ` limit ${mysql.escape(size)}` : ``}`
+        + ` ${size > 0 && pageNum ? ` offset ${mysql.escape((pageNum - 1) * size)}` : ``}`
 
     const data = []
-    // if (size > 0) data.push('' + size)
-    // if (size > 0 && pageNum) data.push('' + ((pageNum - 1) * size))
     const requests = await sqlUtils.query(sql, data)
 
     return requests
@@ -48,9 +47,9 @@ const postNewRequest = async ({ user_id, tour, city, cap }) => {
     if (!cityId) cityId = await api.addNewCity(city)
 
     const sql = `insert into requests(artist_id, tour, city_id, cap)`
-        + ` values('${[user_id, tour, cityId, cap].join(`', '`).replace(`''`, null)}')`
+        + ` values(?,?,?,?)`
 
-    const results = await sqlUtils.query(sql, [])
+    const results = await sqlUtils.query(sql, [user_id, tour, cityId, cap])
     return results
 }
 
@@ -104,20 +103,18 @@ const castVote = async (requestId, user_id) => {
 
 // send an email to artist stating the completion of a request
 const notifyArtistIfComplete = async (requestId) => {
-    const [{ name, email }] = await sqlUtils.query(
+    const [{ name, email_recipient }] = await sqlUtils.query(
         `select u.name name, u.email email from users u`
         + ` join requests r on r.artist_id = u.id where r.id = ?`, [requestId]
     )
     const msg = {
-        to: email,
-        from: 'neriyarden@gmail.com',
         subject: `${name}, Your Request has reached it's goal!`,
         html: `<h2>Your Request has reached it's goal!</h2>
             <a href='http://localhost:3000/User/Requests'>
             <h5>Go to Crescendo.com for more Details</h5>
             </a>`
     }
-    sendEmail('neriyarden@gmail.com', msg);
+    sendEmail(email_recipient, msg);
 }
 
 
