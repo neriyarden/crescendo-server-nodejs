@@ -22,7 +22,7 @@ const getRequestsData = async (
         + ` join cities c on c.id = r.city_id`
         + ` left join votes v on v.request_id = r.id`
         + ` where r.deleted = 0`
-        + `${searchQuery ? ` and ${mysql.escape(searchQuery)}` : ``}`
+        + `${searchQuery ? ` and ${searchQuery}` : ``}`
         + ` group by r.id`
         + ` order by votes desc`
         + ` ${size > 0 ? ` limit ${mysql.escape(size)}` : ``}`
@@ -31,7 +31,7 @@ const getRequestsData = async (
     const data = []
     const requests = await sqlUtils.query(sql, data)
 
-    return requests
+    return requests 
 }
 
 

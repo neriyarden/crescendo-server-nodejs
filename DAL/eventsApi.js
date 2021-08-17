@@ -12,7 +12,6 @@ const getEventsData = async (
     when = null,
     tags = []
 ) => {
-    console.log('city:', typeof city, city);
     const searchQuery = artist || city ? sqlUtils.sqlSearchByTextInColumn([
         { column: 'u.name', searchTerm: artist },
         { column: 'c.name', searchTerm: city },
@@ -21,7 +20,6 @@ const getEventsData = async (
     const whenQuery = `datediff(e.date, now()) between ${when === 'past' ? '-1095 and -1' : `0 and ${daysFromNow || 365}`
         }`
     tags = [tags].flat()
-    console.log('tags:', tags);
     const tagsQuery = tags.length
         ? ` t.id in (${mysql.escape(tags)})` : ``
 
@@ -34,7 +32,7 @@ const getEventsData = async (
         + ` ${tags.length ? `join tags t on t.id = et.tag_id` : ''}`
         + ` where e.deleted = 0 and ${whenQuery}`
         + `${searchQuery ? ` and ${searchQuery}` : ``}`
-        + `${tagsQuery ? ` and ${mysql.escape(tagsQuery)}` : ``}`
+        + `${tagsQuery ? ` and ${tagsQuery}` : ``}`
         + ` group by e.id`
         + `${tagsQuery ? ` having count(tag_id) = ${[tags].flat().length}` : ``}`
         + ` order by featured desc, date`

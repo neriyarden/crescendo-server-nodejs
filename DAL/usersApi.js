@@ -1,11 +1,12 @@
 const sqlUtils = require('../utils/sqlUtils')
+const mysql = require('mysql2/promise')
 
 
 // edit user data
 const updateUserData = async ({ id, name, password }) => {
     const sql = `update users set`
-        + ` ${name ? ` name = '${name}',` : ''}`
-        + ` ${password ? ` password = '${password}'` : ''}`
+        + ` ${name ? ` name = '${mysql.escape(name)}',` : ''}`
+        + ` ${password ? ` password = '${mysql.escape(password)}'` : ''}`
         + ` where id = ?;`
 
     const data = [id]
@@ -40,12 +41,13 @@ const getUserDataByID = async (userId) => {
 // post a new user's data
 const postNewUser = async ({ name, email, password, is_artist }) => {
     const sql = `insert into users(name, email, password, joined_at, is_artist)`
-        + ` values('${name}', '${email}', '${password}', now(), ?);`
+        + ` values(?, ?, ?, now(), ?);`
 
-    const response = await sqlUtils.query(sql, [is_artist])
-    if (is_artist && response.insertId) {
+    const response = await sqlUtils.query(sql, [name, email, password, parseInt(is_artist)])
+    const user_id = response.insertId
+    if (parseInt(is_artist) && user_id) {
         const sql2 = `insert into artists(user_id) values(?)`
-        await sqlUtils.query(sql2, [response.insertId])
+        await sqlUtils.query(sql2, [user_id])
     }
     const results = await sqlUtils.query(
         `select id, name, email, joined_at, is_artist from users where id = ?`, [response.insertId]
@@ -77,8 +79,8 @@ const getUserVotes = async (userId) => {
 
 // check if a user name is available 
 const isUserAvailable = async (column, value) => {
-    const sql = `select ${column} from users where ${column} = '${value}'`
-    const existingValue = await sqlUtils.query(sql, []);
+    const sql = `select ${column} from users where ${column} = ?`
+    const existingValue = await sqlUtils.query(sql, [value]);
     return !existingValue[0]
 }
 
