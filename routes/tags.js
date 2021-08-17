@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 const api = require('../DAL/tagsApi');
-const validations = require('../validations/validations')
 
 
 // get all tags

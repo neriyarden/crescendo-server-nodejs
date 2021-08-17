@@ -42,6 +42,8 @@ router.get('/:id', async (req, res) => {
     res.send(results);
 });
 
+
+// TODO: check -> is this used?
 // get a specific event tags
 router.get('/:id/tags', async (req, res) => {
     const { error } = validations.id.validate(req.params)

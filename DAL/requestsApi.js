@@ -28,8 +28,8 @@ const getRequestsData = async (
         + ` ${size > 0 && pageNum ? ` offset ${(pageNum - 1) * size}` : ``}`
 
     const data = []
-    if (size > 0) data.push('' + size)
-    if (size > 0 && pageNum) data.push('' + ((pageNum - 1) * size))
+    // if (size > 0) data.push('' + size)
+    // if (size > 0 && pageNum) data.push('' + ((pageNum - 1) * size))
     const requests = await sqlUtils.query(sql, data)
 
     return requests

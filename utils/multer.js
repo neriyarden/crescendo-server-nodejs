@@ -40,7 +40,7 @@ const checkFileType = (file, cB) => {
     const extName = allowedFileTypes.test(path.extname(file.originalname).toLowerCase())
     const mimeTypes = allowedFileTypes.test(file.mimetype)
     if (extName && mimeTypes) return cB(null, true)
-    cB('Only Images filetypes can be uploaded')
+    cB('Only Images of allowed filetypes can be uploaded')
 }
 
 module.exports = {
