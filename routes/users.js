@@ -31,7 +31,9 @@ router.post('/', async (req, res) => {
     if (error)
         return res.status(400).send({ error: error.details[0].message })
     if (!(await api.isUserAvailable('name', req.body.name)))
-        return res.status(400).send({ error: `The name '${req.body.name}' is already taken.` })
+        return res.status(400).send(
+            { error: `The name '${req.body.name}' is already taken.` }
+            )
     if (!(await api.isUserAvailable('email', req.body.email)))
         return res.status(400).send(
             { error: `We already have a user with the email '${req.body.email}'.` }
