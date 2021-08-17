@@ -1,5 +1,6 @@
 const sqlUtils = require('../utils/sqlUtils')
 const api = require('./api')
+const mysql = require('mysql2/promise')
 
 
 // get events data 
@@ -19,8 +20,9 @@ const getEventsData = async (
     const whenQuery = `datediff(e.date, now()) between ${when === 'past' ? '-1095 and -1' : `0 and ${daysFromNow || 365}`
         }`
     tags = [tags].flat()
+    console.log('tags:', tags);
     const tagsQuery = tags.length
-        ? ` t.id in (${'' + tags})` : ``
+        ? ` t.id in (${mysql.escape(tags)})` : ``
 
     const sql = `select u.name 'artist', e.*, v.name 'venue', c.name 'city'`
         + ` from users u`
@@ -30,15 +32,15 @@ const getEventsData = async (
         + ` ${tags.length ? `join events_tags et on e.id = et.event_id` : ''}`
         + ` ${tags.length ? `join tags t on t.id = et.tag_id` : ''}`
         + ` where e.deleted = 0 and ${whenQuery}`
-        + `${searchQuery ? ` and ${searchQuery}` : ``}`
-        + `${tagsQuery ? ` and ${tagsQuery}` : ``}`
+        + `${searchQuery ? ` and ${mysql.escape(searchQuery)}` : ``}`
+        + `${tagsQuery ? ` and ${mysql.escape(tagsQuery)}` : ``}`
         + ` group by e.id`
         + `${tagsQuery ? ` having count(tag_id) = ${[tags].flat().length}` : ``}`
         + ` order by featured desc, date`
-        + ` ${size > 0 ? ` limit ${size}` : ``}`
-        + ` ${size > 0 && pageNum ? ` offset ${(pageNum - 1) * size}` : ``}`
+        + ` ${size > 0 ? ` limit ?` : ``}`
+        + ` ${size > 0 && pageNum ? ` offset ${mysql.escape((pageNum - 1) * size)}` : ``}`
 
-    const data = []
+    const data = [size]
     const events = await sqlUtils.query(sql, data)
     events.forEach(event => {
         event.date = sqlUtils.formatDateToDDMMYYYY(event.date)
@@ -110,12 +112,12 @@ const postNewEvent = async ({
 
     const sql = `insert into events(artist_id, date, venue_id, ticketseller_url,`
         + ` time, duration, tour, description, img_url, came_from_request_id)`
-        + ` values('${[
+        + ` values(?,?,?,?,?,?,?,?,?,?)`
+    await sqlUtils.query(sql, [
             user_id, date, venue_id, ticketseller_url, time,
             duration, tour, description, img_url, came_from_request_id
-        ].join(`', '`).replace(`''`, null)}')`
+    ])
 
-    await sqlUtils.query(sql, [])
     const [newEvent] = await sqlUtils.query(
         `select id, tour, time, date, duration, venue_id, description, img_url,`
         + `  artist_id, ticketseller_url from events order by id desc limit 1`, []
@@ -128,7 +130,7 @@ const postNewEvent = async ({
         if (tagsIds.length > 0) {
             let tagsEventsSql = `insert into events_tags(event_id, tag_id) values`
                 + ` ${tagsIds.map(idObj => idObj.tagId).map(tagId => (
-                    ` ( ${newEvent.id}, ${tagId} )`
+                    ` ( ${mysql.escape(newEvent.id)}, ${mysql.escape(tagId)} )`
                 ))}`
             await sqlUtils.query(tagsEventsSql, [])
         }
@@ -165,15 +167,26 @@ const updateEventData = async ({
         venue_id = await api.addNewVenue(venueName, cityId)
     }
     const sql = `update events set`
-        + ` date = '${date}', venue_id = ?,`
-        + ` ticketseller_url = '${ticketseller_url}', time = '${time}',`
-        + ` duration = ?, tour = '${tour}', description = '${description}',`
-        + ` ${img_url ? `img_url = '${img_url}',` : ''}`
+        + ` date = ?, venue_id = ?,`
+        + ` ticketseller_url = ?, time = ?,`
+        + ` duration = ?, tour = ?, description = ?,`
+        + ` ${img_url ? `img_url = ${mysql.escape(img_url)},` : ''}`
         + ` came_from_request_id = ?, sold_out = ?`
         + ` where id = ? and deleted = 0;`
 
 
-    const data = [venue_id, duration, came_from_request_id, sold_out, id]
+    const data = [
+        date,
+        venue_id,
+        ticketseller_url,
+        time,
+        duration,
+        tour,
+        description,
+        came_from_request_id,
+        sold_out,
+        id
+    ]
     const results = await sqlUtils.query(sql, data)
 
     if (tags.length) {
@@ -186,7 +199,7 @@ const updateEventData = async ({
 
             let tagsEventsSql = `insert into events_tags(event_id, tag_id) values`
                 + ` ${tagsIds.map(idObj => idObj.tagId).map(tagId => (
-                    ` ( ${id}, ${tagId} )`
+                    ` ( ${mysql.escape(id)}, ${mysql.escape(tagId)} )`
                 ))}`
             await sqlUtils.query(tagsEventsSql, [])
         }
