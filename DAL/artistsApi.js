@@ -1,5 +1,6 @@
 const sqlUtils = require('../utils/sqlUtils')
 const utils = require('../utils/utils')
+const mysql = require('mysql2/promise')
 
 
 // get artists data
@@ -12,9 +13,9 @@ const getArtistsData = async (
     const sql = `select u.name, a.* from artists a`
         + ` join users u on a.user_id = u.id`
         + `${startsWith || searchTerm ? ' where' : ''}`
-        + `${startsWith ? ` u.name like "${startsWith}%"` : ``}`
+        + `${startsWith ? ` u.name like ${mysql.escape(`${startsWith}%`)}` : ``}`
         + `${startsWith && searchTerm ? ' and' : ''}`
-        + `${searchTerm ? ` u.name regexp "${searchTerm}"` : ``}`
+        + `${searchTerm ? ` u.name regexp ${mysql.escape(searchTerm)}` : ``}`
         + `${size > 0 ? ` limit ?` : ``}`
         + `${size > 0 && pageNum ? ` offset ?` : ``}`
 
@@ -51,12 +52,12 @@ const updateArtistData = async ({
     link_to_youtube
 }) => {
     let sql = `update artists set`
-        + `${img_url ? ` img_url = '${img_url}',` : ''}`
-        + `${bio ? ` bio = "${bio.replace(/"/g, `'`)}",` : ''}`
-        + `${link_to_spotify ? ` link_to_spotify = '${link_to_spotify}',` : ''}`
-        + `${link_to_instagram ? ` link_to_instagram = '${link_to_instagram}',` : ''}`
-        + `${link_to_facebook ? ` link_to_facebook = '${link_to_facebook}',` : ''}`
-        + `${link_to_youtube ? ` link_to_youtube = '${link_to_youtube}',` : ''}`
+        + `${img_url ? ` img_url = ${mysql.escape(img_url)},` : ''}`
+        + `${bio ? ` bio = ${mysql.escape(bio.replace(/"/g, `'`))},` : ''}`
+        + `${link_to_spotify ? ` link_to_spotify = ${mysql.escape(link_to_spotify)},` : ''}`
+        + `${link_to_instagram ? ` link_to_instagram = ${mysql.escape(link_to_instagram)},` : ''}`
+        + `${link_to_facebook ? ` link_to_facebook = ${mysql.escape(link_to_facebook)},` : ''}`
+        + `${link_to_youtube ? ` link_to_youtube = ${mysql.escape(link_to_youtube)},` : ''}`
     sql = sql.slice(0, -1) + ` where user_id = ?;`
 
     const data = [user_id]
