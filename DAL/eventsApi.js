@@ -20,7 +20,6 @@ const getEventsData = async (
     const whenQuery = `datediff(e.date, now()) between ${when === 'past' ? '-1095 and -1' : `0 and ${daysFromNow || 365}`
         }`
     tags = [tags].flat()
-    console.log('tags:', tags);
     const tagsQuery = tags.length
         ? ` t.id in (${mysql.escape(tags)})` : ``
 
@@ -32,8 +31,8 @@ const getEventsData = async (
         + ` ${tags.length ? `join events_tags et on e.id = et.event_id` : ''}`
         + ` ${tags.length ? `join tags t on t.id = et.tag_id` : ''}`
         + ` where e.deleted = 0 and ${whenQuery}`
-        + `${searchQuery ? ` and ${mysql.escape(searchQuery)}` : ``}`
-        + `${tagsQuery ? ` and ${mysql.escape(tagsQuery)}` : ``}`
+        + `${searchQuery ? ` and ${searchQuery}` : ``}`
+        + `${tagsQuery ? ` and ${tagsQuery}` : ``}`
         + ` group by e.id`
         + `${tagsQuery ? ` having count(tag_id) = ${[tags].flat().length}` : ``}`
         + ` order by featured desc, date`
