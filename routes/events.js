@@ -16,14 +16,14 @@ router.get('/', async (req, res) => {
         return res.status(400).send({ error: error.details[0].message })
     }
 
-        const results = await api.getEventsData(
-            '' + req.query.size,
-            '' + req.query.pageNum,
-            req.query.artist,
-            req.query.city,
-            req.query.when,
-            req.query.tags
-        )
+    const results = await api.getEventsData(
+        '' + req.query.size,
+        '' + req.query.pageNum,
+        req.query.artist,
+        req.query.city,
+        req.query.when,
+        req.query.tags
+    )
     if (!results.events)
         res.status(204).send({ error: 'No results were found.' })
     res.status(200).send(results);
@@ -69,7 +69,9 @@ router.post('/', validateCookie, async (req, res) => {
         ...req.body,
         img_url: req.file ? `/img/events/${req.file.filename}` : ''
     })
-    res.status(200).send(results);
+    if (!results)
+        res.status(404).send({ error: 'No results were found.' })
+    res.status(201).send(results);
 })
 
 

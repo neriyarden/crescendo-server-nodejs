@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 
     const [results] = await api.postNewUser(req.body)
 
-    res.status(200).send(results);
+    res.status(201).send(results);
 })
 
 // edit user data

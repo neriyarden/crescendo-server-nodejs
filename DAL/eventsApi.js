@@ -99,7 +99,8 @@ const postNewEvent = async ({
     const userExists = await sqlUtils.query(
         `select * from artists where user_id = ?`, [user_id]
     )
-    if (!userExists[0]) return `Can't create event of unknown artist.`
+    // TODO send this as error with status code
+    if (!userExists[0]) return false
     const [results] = await sqlUtils.query(
         `select id from venues where name = ?`, [venueName]
     )

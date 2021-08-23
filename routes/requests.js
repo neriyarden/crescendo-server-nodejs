@@ -31,8 +31,8 @@ router.post('/', validateCookie, async (req, res) => {
 
     const results = await api.postNewRequest(req.body)
     if (!results)
-        res.status(204).send({ error: 'No results were found.' })
-    res.status(200).send(results);
+        res.status(404).send({ error: `Can't create event of unknown artist.` })
+    res.status(201).send(results);
 })
 
 
@@ -74,7 +74,7 @@ router.post('/:request_id/vote/:user_id', validateCookie, async (req, res) => {
     await api.notifyArtistIfComplete(updatedRequestId)
     if (!updatedRequestId)
         res.status(204).send({ error: "There was a problem in casting your vote" })
-    res.status(200).send({ msg: 'Vote submitted successfully.' });
+    res.status(201).send({ msg: 'Vote submitted successfully.' });
 })
 
 
