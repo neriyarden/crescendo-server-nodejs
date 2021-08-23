@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 
     const [results] = await api.postNewUser(req.body)
 
-    res.send(results);
+    res.status(200).send(results);
 })
 
 // edit user data
@@ -51,7 +51,7 @@ router.patch('/', async (req, res) => {
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.updateUserData(req.body)
-    res.send(results);
+    res.status(200).send(results);
 })
 
 
@@ -63,8 +63,8 @@ router.get('/:id/votes', validateCookie, async (req, res) => {
 
     const results = await api.getUserVotes(req.params.id)
     if (!results.length)
-        return res.status(404).send({ error: 'No Votes were found.' })
-    res.send(results);
+        return res.status(204).send({ error: 'No Votes were found.' })
+    res.status(200).send(results);
 });
 
 module.exports = router;

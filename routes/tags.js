@@ -5,7 +5,7 @@ const api = require('../DAL/tagsApi');
 
 // get all tags
 router.get('/', async function(req, res) {
-  res.send(await api.getAllTags());
+  res.status(200).send(await api.getAllTags());
 });
 
 

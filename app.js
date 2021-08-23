@@ -31,11 +31,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // routers
-app.use('/artists', artistsRouter);
-app.use('/events', eventsRouter);
-app.use('/signIn', singInRouter);
-app.use('/tags', tagsRouter);
-app.use('/users', usersRouter);
-app.use('/requests', requestsRouter);
+app.use('/api/artists', artistsRouter);
+app.use('/api/events', eventsRouter);
+app.use('/api/signIn', singInRouter);
+app.use('/api/tags', tagsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/requests', requestsRouter);
 
 module.exports = app;

@@ -25,8 +25,8 @@ router.get('/', async (req, res) => {
             req.query.tags
         )
     if (!results.events)
-        res.status(404).send({ error: 'No results were found.' })
-    res.send(results);
+        res.status(204).send({ error: 'No results were found.' })
+    res.status(200).send(results);
 });
 
 
@@ -38,8 +38,8 @@ router.get('/:id', async (req, res) => {
 
     const results = await api.getEventDataById(req.params.id)
     if (!results)
-        res.status(404).send({ error: 'No results were found for the given event.' })
-    res.send(results);
+        res.status(204).send({ error: 'No results were found for the given event.' })
+    res.status(200).send(results);
 });
 
 
@@ -52,8 +52,8 @@ router.get('/:id/tags', async (req, res) => {
 
     const results = await api.getEventTags(req.params.id)
     if (!results)
-        res.status(404).send({ error: 'No results were found for the given event.' })
-    res.send(results);
+        res.status(204).send({ error: 'No results were found for the given event.' })
+    res.status(200).send(results);
 });
 
 
@@ -69,7 +69,7 @@ router.post('/', validateCookie, async (req, res) => {
         ...req.body,
         img_url: req.file ? `/img/events/${req.file.filename}` : ''
     })
-    res.send(results);
+    res.status(200).send(results);
 })
 
 
@@ -85,7 +85,7 @@ router.patch('/', validateCookie, async (req, res) => {
         ...req.body,
         img_url: req.file ? `/img/events/${req.file.filename}` : ''
     })
-    res.send(results);
+    res.status(200).send(results);
 })
 
 
@@ -98,7 +98,7 @@ router.delete('/:event_id', validateCookie, async (req, res) => {
     const deletedId = await api.deleteExistingEvent(req.params.event_id)
     if (!deletedId)
         res.status(404).send({ error: 'Failed to delete this event.' })
-    res.send({ eventId: deletedId });
+    res.status(200).send({ eventId: deletedId });
 })
 
 
