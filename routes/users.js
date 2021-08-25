@@ -62,7 +62,7 @@ router.get('/:id/votes', validateCookie, async (req, res) => {
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.getUserVotes(req.params.id)
-    if (!results.length)
+    if (results.length === 0)
         return res.status(204).send({ error: 'No Votes were found.' })
     res.status(200).send(results);
 });
