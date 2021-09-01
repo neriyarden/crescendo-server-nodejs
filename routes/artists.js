@@ -32,7 +32,7 @@ router.get('/:id', async (req, res,) => {
 
     const results = await api.getArtistDataById(req.params.id)
     if (!results)
-        res.status(204).send({ error: 'The artist with the given id was not found.' })
+        res.status(404).send({ error: 'The artist with the given id was not found.' })
     res.status(200).send(results);
 });
 
@@ -62,7 +62,7 @@ router.get('/:id/events', async (req, res,) => {
 
     let events = await api.getEventsOfArtist(req.params.id)
     if (events.length === 0) 
-        return res.status(204).send({ error: 'No events were found for the given artist.' })
+        return res.status(404).send({ error: 'No events were found for the given artist.' })
 
     res.status(200).send(events);
 });
@@ -76,7 +76,7 @@ router.get('/:id/requests', async (req, res,) => {
 
     const results = await api.getRequestsOfArtist(req.params.id)
     if (results.length === 0) 
-        return res.status(204).send({ error: 'No requests were found for the given artist.' })
+        return res.status(404).send({ error: 'No requests were found for the given artist.' })
     res.status(200).send(results);
 });
 
