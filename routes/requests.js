@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     )
     if (!results)
         res.status(404).send({ error: 'No results were found.' })
-    res.send(results);
+    res.status(200).send(results);
 });
 
 
@@ -31,8 +31,8 @@ router.post('/', validateCookie, async (req, res) => {
 
     const results = await api.postNewRequest(req.body)
     if (!results)
-        res.status(404).send({ error: 'No results were found.' })
-    res.send(results);
+        res.status(404).send({ error: `Can't create event of unknown artist.` })
+    res.status(201).send(results);
 })
 
 
@@ -45,7 +45,7 @@ router.patch('/', validateCookie, async (req, res) => {
     const results = await api.updateRequestData(req.body)
     if (!results)
         res.status(404).send({ error: 'No results were found.' })
-    res.send(results);
+    res.status(200).send(results);
 })
 
 
@@ -57,8 +57,8 @@ router.delete('/:request_id', validateCookie, async (req, res) => {
 
     const deletedId = await api.deleteExistingRequest(req.params.request_id)
     if (!deletedId)
-        res.status(404).send({ error: 'Failed to delete this request.' })
-    res.send({ id: deletedId });
+        res.status(424).send({ error: 'Failed to delete this request.' })
+    res.status(200).send({ id: deletedId });
 })
 
 
@@ -73,8 +73,8 @@ router.post('/:request_id/vote/:user_id', validateCookie, async (req, res) => {
     )
     await api.notifyArtistIfComplete(updatedRequestId)
     if (!updatedRequestId)
-        res.status(404).send({ error: "There was a problem in casting your vote" })
-    res.send({ msg: 'Vote submitted successfully.' });
+        res.status(424).send({ error: "There was a problem in casting your vote" })
+    res.status(201).send({ msg: 'Vote submitted successfully.' });
 })
 
 
@@ -89,8 +89,8 @@ router.delete('/:request_id/vote/:user_id', validateCookie, async (req, res, nex
         req.params.user_id
     )
     if (!updatedRequestId)
-        res.status(404).send({ error: "There was a problem in casting your vote" })
-    res.send({ msg: 'Vote submitted successfully.' });
+        res.status(424).send({ error: "There was a problem in casting your vote" })
+    res.status(200).send({ msg: 'Vote submitted successfully.' });
 })
 
 module.exports = router;

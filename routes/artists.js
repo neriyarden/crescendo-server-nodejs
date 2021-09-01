@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
         req.query.startsWith,
         req.query.searchTerm
     )
-    res.send(results);
+    res.status(200).send(results);
 });
 
 
@@ -33,7 +33,7 @@ router.get('/:id', async (req, res,) => {
     const results = await api.getArtistDataById(req.params.id)
     if (!results)
         res.status(404).send({ error: 'The artist with the given id was not found.' })
-    res.send(results);
+    res.status(200).send(results);
 });
 
 
@@ -48,7 +48,7 @@ router.patch('/', validateCookie, async (req, res) => {
         ...req.body,
         img_url: req.file ? `/img/artists/${req.file.filename}` : ''
     })
-    res.send(results);
+    res.status(200).send(results);
 })
 
 
@@ -61,10 +61,10 @@ router.get('/:id/events', async (req, res,) => {
         return res.status(400).send({ error: error.details[0].message })
 
     let events = await api.getEventsOfArtist(req.params.id)
-    if (!events.length) 
+    if (events.length === 0) 
         return res.status(404).send({ error: 'No events were found for the given artist.' })
 
-    res.send(events);
+    res.status(200).send(events);
 });
 
 
@@ -75,9 +75,9 @@ router.get('/:id/requests', async (req, res,) => {
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.getRequestsOfArtist(req.params.id)
-    if (!results.length) 
+    if (results.length === 0) 
         return res.status(404).send({ error: 'No requests were found for the given artist.' })
-    res.send(results);
+    res.status(200).send(results);
 });
 
 

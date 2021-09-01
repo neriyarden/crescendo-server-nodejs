@@ -20,7 +20,7 @@ const getEventsData = async (
     const whenQuery = `datediff(e.date, now()) between ${when === 'past' ? '-1095 and -1' : `0 and ${daysFromNow || 365}`
         }`
     tags = [tags].flat()
-    const tagsQuery = tags.length
+    const tagsQuery = tags.length > 0
         ? ` t.id in (${mysql.escape(tags)})` : ``
 
     const sql = `select u.name 'artist', e.*, v.name 'venue', c.name 'city'`
@@ -28,8 +28,8 @@ const getEventsData = async (
         + ` join events e on u.id = e.artist_id`
         + ` join venues v on e.venue_id = v.id`
         + ` join cities c on c.id = v.city_id`
-        + ` ${tags.length ? `join events_tags et on e.id = et.event_id` : ''}`
-        + ` ${tags.length ? `join tags t on t.id = et.tag_id` : ''}`
+        + ` ${tags.length > 0 ? `join events_tags et on e.id = et.event_id` : ''}`
+        + ` ${tags.length > 0 ? `join tags t on t.id = et.tag_id` : ''}`
         + ` where e.deleted = 0 and ${whenQuery}`
         + `${searchQuery ? ` and ${searchQuery}` : ``}`
         + `${tagsQuery ? ` and ${tagsQuery}` : ``}`
@@ -99,7 +99,8 @@ const postNewEvent = async ({
     const userExists = await sqlUtils.query(
         `select * from artists where user_id = ?`, [user_id]
     )
-    if (!userExists[0]) return `Can't create event of unknown artist.`
+    // TODO send this as error with status code
+    if (!userExists[0]) return false
     const [results] = await sqlUtils.query(
         `select id from venues where name = ?`, [venueName]
     )
@@ -121,7 +122,7 @@ const postNewEvent = async ({
         `select id, tour, time, date, duration, venue_id, description, img_url,`
         + `  artist_id, ticketseller_url from events order by id desc limit 1`, []
     )
-    if (tags.length) {
+    if (tags.length > 0) {
         const tagsIds = await sqlUtils.query(
             `select id tagId from tags where id in(${'?'.repeat(tags.length).split('').join(',')})`,
             tags
@@ -188,7 +189,7 @@ const updateEventData = async ({
     ]
     const results = await sqlUtils.query(sql, data)
 
-    if (tags.length) {
+    if (tags.length > 0) {
         const tagsIds = await sqlUtils.query(
             `select id tagId from tags where id in(${'?'.repeat(tags.length).split('').join(',')})`,
             tags
