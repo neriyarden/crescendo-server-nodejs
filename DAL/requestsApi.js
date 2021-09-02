@@ -103,7 +103,7 @@ const castVote = async (requestId, user_id) => {
 
 // send an email to artist stating the completion of a request
 const notifyArtistIfComplete = async (requestId) => {
-    const [{ name, email_recipient }] = await sqlUtils.query(
+    const [{ name, email: email_recipient }] = await sqlUtils.query(
         `select u.name name, u.email email from users u`
         + ` join requests r on r.artist_id = u.id where r.id = ?`, [requestId]
     )
