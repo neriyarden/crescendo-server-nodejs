@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const api = require('../DAL/usersApi');
-const validations = require('../validations/validations')
-const validateCookie = require('../middleware/validateCookie')
-
+const validations = require('../validations/validations');
+const validateCookie = require('../middleware/validateCookie');
+const bcrypt = require('bcryptjs');
 
 
 // get all users data
@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
     const { error } = validations.user.validate(req.body)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
+    // combine the two with promise all + array.every()?
     if (!(await api.isUserAvailable('name', req.body.name)))
         return res.status(400).send(
             { error: `The name '${req.body.name}' is already taken.` }
@@ -38,8 +39,17 @@ router.post('/', async (req, res) => {
         return res.status(400).send(
             { error: `We already have a user with the email '${req.body.email}'.` }
         )
-
-    const [results] = await api.postNewUser(req.body)
+console.log('1-------->', req.body.password);
+    let hashedPassword
+    try {
+        hashedPassword = await bcrypt.hash(req.body.password, 12)
+    } catch (err) {
+        res.status(500).send('Could not create user, please try again.');
+    }
+    const [results] = await api.postNewUser({
+        ...req.body,
+        password: hashedPassword
+    })
 
     res.status(201).send(results);
 })

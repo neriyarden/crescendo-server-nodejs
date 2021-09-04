@@ -3,10 +3,10 @@ const sqlUtils = require('../utils/sqlUtils')
 
 // validate user by email
 const validateEmail = async (incomingEmail) => {
-    const sql = `select email from users u where u.email = ?`
+    const sql = `select id, name, email, password from users where email = ?`
     const data = [incomingEmail]
     const [result] = await sqlUtils.query(sql, data)
-    return result?.email
+    return result
 }
 
 // validate user by password

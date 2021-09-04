@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/signInApi');
 const validations = require('../validations/validations')
+const bcrypt = require('bcryptjs');
 
 
 // User sign in
@@ -10,15 +11,22 @@ router.post('/', async (req, res) => {
     if (error)
         return res.send({ error: error.details[0].message })
 
-    const email = await api.validateEmail(req.body.email)
-    if (!email)
+    const userCredentials = await api.validateEmail(req.body.email)
+    if (!userCredentials)
         return res.status(404).send({ error: `This email isn't registered` })
+    const { id, password: existingPassword } = userCredentials
+    
+    let isValidPassword = false
+    try {
+        isValidPassword = await bcrypt.compare(req.body.password, existingPassword)
+    } catch (err) {
+        return res.status(500).send({ error: `Could not log you in, please try again.` })
+    }
 
-    const userId = await api.validatePassword(email, req.body.password)
-    if (!userId)
-        return res.send({ error: `Incorrect password` })
+    if (!isValidPassword)
+        return res.status(403).send({ error: `Incorrect password` })
 
-    res.cookie('session_id', userId, { maxAge: 15_552_000_000 })
+    res.cookie('session_id', id, { maxAge: 15_552_000_000 })
     res.status(200).send('Signing In..')
 });
 
