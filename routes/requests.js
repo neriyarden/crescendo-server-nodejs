@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/requestsApi');
 const validations = require('../validations/validations')
-const validateCookie = require('../auth/validateCookie')
+const validateCookie = require('../middleware/validateCookie')
 
 
 // get requests data

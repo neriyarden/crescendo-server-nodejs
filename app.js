@@ -18,7 +18,6 @@ const app = express();
 
 app.use(cors({
     credentials: true,
-    'access-control-expose-headers': 'Set-Cookie',
     origin: 
         process.env.NODE_ENV === 'production'
         ? 'https://crescendo-events.web.app'
