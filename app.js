@@ -14,13 +14,11 @@ const tagsRouter = require('./routes/tags');
 const usersRouter = require('./routes/users');
 const requestsRouter = require('./routes/requests');
 
-
-
 const app = express();
 
-// middleware
 app.use(cors({
     credentials: true,
+    'access-control-expose-headers': 'Set-Cookie',
     origin: 
         process.env.NODE_ENV === 'production'
         ? 'https://crescendo-events.web.app'
