@@ -21,7 +21,7 @@ const app = express();
 // middleware
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:5000'
+    origin: 'https://crescendo-events.web.app'
 }))
 app.use(logger('dev'));
 app.use(express.json());
