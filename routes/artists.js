@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/artistsApi');
 const validations = require('../validations/validations')
-const validateCookie = require('../auth/validateCookie')
+const validateCookie = require('../middleware/validateCookie')
 const { multerStorage, uploader } = require('../utils/multer')
 
 // setting multer for public/img/artists
