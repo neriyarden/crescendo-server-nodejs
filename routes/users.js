@@ -39,7 +39,6 @@ router.post('/', async (req, res) => {
         return res.status(400).send(
             { error: `We already have a user with the email '${req.body.email}'.` }
         )
-console.log('1-------->', req.body.password);
     let hashedPassword
     try {
         hashedPassword = await bcrypt.hash(req.body.password, 12)
