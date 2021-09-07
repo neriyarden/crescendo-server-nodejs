@@ -6,7 +6,9 @@ const validateToken = require('../middleware/validateToken')
 
 
 // get requests data
-router.get('/', async (req, res) => {
+router.get('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
     const { error } = validations.searchParams.validate(req.query)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
