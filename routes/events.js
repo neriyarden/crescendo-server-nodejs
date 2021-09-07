@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/eventsApi');
 const validations = require('../validations/validations')
-const validateCookie = require('../middleware/validateCookie')
+const validateToken = require('../middleware/validateToken')
 const { multerStorage, uploader } = require('../utils/multer')
 
 // setting multer for public/img/events
@@ -60,7 +60,10 @@ router.get('/:id/tags', async (req, res) => {
 
 
 // add new event
-router.post('/', validateCookie, async (req, res) => {
+router.post('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     await uploader(req, res, storage)
     req.body.tags = req.body.tags.split(',')
     const { error } = validations.event.validate(req.body)
@@ -78,7 +81,10 @@ router.post('/', validateCookie, async (req, res) => {
 
 
 // edit existing event
-router.patch('/', validateCookie, async (req, res) => {
+router.patch('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     await uploader(req, res, storage)
     req.body.tags = req.body.tags.split(',')
     const { error } = validations.event.validate(req.body)
@@ -94,7 +100,9 @@ router.patch('/', validateCookie, async (req, res) => {
 
 
 // delete existing event by event id
-router.delete('/:event_id', validateCookie, async (req, res) => {
+router.delete('/:event_id', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+    return res.status(401).send({ error: 'Un-Authorized Access' })
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)

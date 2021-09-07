@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/usersApi');
 const validations = require('../validations/validations');
-const validateCookie = require('../middleware/validateCookie');
+const validateToken = require('../middleware/validateToken');
 const bcrypt = require('bcryptjs');
 
 
@@ -13,7 +13,10 @@ router.get('/', async (req, res) => {
 
 
 // get user data by id
-router.get('/:id', validateCookie, async (req, res) => {
+router.get('/:id', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)
@@ -49,7 +52,6 @@ router.post('/', async (req, res) => {
         ...req.body,
         password: hashedPassword
     })
-
     res.status(201).send(results);
 })
 
@@ -65,7 +67,10 @@ router.patch('/', async (req, res) => {
 
 
 // get user's votes by id
-router.get('/:id/votes', validateCookie, async (req, res) => {
+router.get('/:id/votes', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })

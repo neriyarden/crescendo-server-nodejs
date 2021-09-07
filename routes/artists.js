@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/artistsApi');
 const validations = require('../validations/validations')
-const validateCookie = require('../middleware/validateCookie')
+const validateToken = require('../middleware/validateToken')
 const { multerStorage, uploader } = require('../utils/multer')
 
 // setting multer for public/img/artists
@@ -38,7 +38,10 @@ router.get('/:id', async (req, res,) => {
 
 
 // edit artist data
-router.patch('/', validateCookie, async (req, res) => {
+router.patch('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     await uploader(req, res, storage)
     const { error } = validations.artist.validate(req.body)
     if (error)
