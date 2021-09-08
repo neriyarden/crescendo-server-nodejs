@@ -23,6 +23,8 @@ router.post('/', async (req, res) => {
         is_artist
     } = userCredentials
 
+    console.log('incoming Password:', req.body.password);
+    console.log('existingPassword:', existingPassword);
     let isValidPassword = false
     try {
         isValidPassword = await bcrypt.compare(req.body.password, existingPassword)
