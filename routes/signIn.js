@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
         is_artist
     } = userCredentials
 
-    console.log('incoming Password:', req.body.password);
+    console.log('incoming Password:', bcrypt.hash(req.body.password, 12));
     console.log('existingPassword:', existingPassword);
     let isValidPassword = false
     try {
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     }
 
     if (!isValidPassword)
-        return res.status(403).send({ error: `Incorrect password` })
+        return res.status(403).send({ error: `Incorrect Password` })
 
     let token;
     try {

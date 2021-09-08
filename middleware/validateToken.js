@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const validateToken = async (req, res, next) => {
     if(req.method === 'OPTIONS') return next()
     try {
-        const token = req.headers.authorization.split(' ')[1]
+        const token = req.headers.authorization.replace('Bearer ', '')
         if(!token) {
             throw new Error('Access Denied. Authentication failed.')
         }
