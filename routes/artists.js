@@ -25,12 +25,12 @@ router.get('/', async (req, res) => {
 
 
 // get a specific artist data
-router.get('/:id', async (req, res,) => {
+router.get('/:user_id', async (req, res,) => {
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)
 
-    const results = await api.getArtistDataById(req.params.id)
+    const results = await api.getArtistDataById(req.params.user_id)
     if (!results)
         res.status(404).send({ error: 'The artist with the given id was not found.' })
     res.status(200).send(results);
@@ -39,10 +39,12 @@ router.get('/:id', async (req, res,) => {
 
 // edit artist data
 router.patch('/', validateToken, async (req, res) => {
+    await uploader(req, res, storage)
+    console.log('req.tokenData.user_id', req.tokenData.user_id);
+    console.log('req.params.user_id', req.body.user_id);
     if (req.tokenData.user_id !== parseInt(req.body.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
-    await uploader(req, res, storage)
     const { error } = validations.artist.validate(req.body)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -58,12 +60,12 @@ router.patch('/', validateToken, async (req, res) => {
 
 
 // get all the events of an artist by artist id
-router.get('/:id/events', async (req, res,) => {
+router.get('/:user_id/events', async (req, res,) => {
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
 
-    let events = await api.getEventsOfArtist(req.params.id)
+    let events = await api.getEventsOfArtist(req.params.user_id)
     if (events.length === 0) 
         return res.status(404).send({ error: 'No events were found for the given artist.' })
 
@@ -72,12 +74,12 @@ router.get('/:id/events', async (req, res,) => {
 
 
 // get all the requests of an artist
-router.get('/:id/requests', async (req, res,) => {
+router.get('/:user_id/requests', async (req, res,) => {
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
 
-    const results = await api.getRequestsOfArtist(req.params.id)
+    const results = await api.getRequestsOfArtist(req.params.user_id)
     if (results.length === 0) 
         return res.status(404).send({ error: 'No requests were found for the given artist.' })
     res.status(200).send(results);

@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
     let token;
     try {
         token = jwt.sign(
-            { user_id, name },
+            { user_id, name, joined_at, is_artist },
             process.env.TOKEN_SECRET,
             { expiresIn: '1h' }
         )
@@ -47,7 +47,6 @@ router.post('/', async (req, res) => {
         return res.status(500).send('Could not perform sign in. Please try again.');
     }
 
-    // res.cookie('session_id', id, { maxAge: 15_552_000_000 })
     res.status(200).send({ user_id, name, is_artist, joined_at, token })
 });
 

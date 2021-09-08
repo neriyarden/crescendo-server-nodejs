@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
 
 // get user data by id
-router.get('/:id', validateToken, async (req, res) => {
+router.get('/:user_id', validateToken, async (req, res) => {
     if (req.tokenData.user_id !== parseInt(req.params.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
@@ -21,7 +21,7 @@ router.get('/:id', validateToken, async (req, res) => {
     if (error)
         return res.status(400).send(error.details[0].message)
 
-    const [results] = await api.getUserDataByID(req.params.id)
+    const [results] = await api.getUserDataByID(req.params.user_id)
     if (!results)
         return res.status(404).send({ error: 'The user with the given id was not found.' })
     res.send(results);
@@ -67,7 +67,9 @@ router.patch('/', async (req, res) => {
 
 
 // get user's votes by id
-router.get('/:id/votes', validateToken, async (req, res) => {
+router.get('/:user_id/votes', validateToken, async (req, res) => {
+    console.log('req.tokenData.user_id', req.tokenData.user_id);
+    console.log('req.params.user_id', req.params.user_id);
     if (req.tokenData.user_id !== parseInt(req.params.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
@@ -75,9 +77,10 @@ router.get('/:id/votes', validateToken, async (req, res) => {
     if (error)
         return res.status(400).send({ error: error.details[0].message })
 
-    const results = await api.getUserVotes(req.params.id)
+    const results = await api.getUserVotes(req.params.user_id)
+    console.log('results');
     if (results.length === 0)
-        return res.status(404).send({ error: 'No Votes were found.' })
+        return res.status(200).send({ error: 'No Votes were found.' })
     res.status(200).send(results);
 });
 

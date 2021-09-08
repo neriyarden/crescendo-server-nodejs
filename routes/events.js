@@ -31,12 +31,12 @@ router.get('/', async (req, res) => {
 
 
 // get a specific event data
-router.get('/:id', async (req, res) => {
+router.get('/:event_id', async (req, res) => {
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)
 
-    const results = await api.getEventDataById(req.params.id)
+    const results = await api.getEventDataById(req.params.event_id)
     if (results.length === 0)
         return res.status(200).send(
             { error: 'No results were found for the given event' }
@@ -47,12 +47,12 @@ router.get('/:id', async (req, res) => {
 
 // TODO: check -> is this used?
 // get a specific event tags
-router.get('/:id/tags', async (req, res) => {
+router.get('/:event_id/tags', async (req, res) => {
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)
 
-    const results = await api.getEventTags(req.params.id)
+    const results = await api.getEventTags(req.params.event_id)
     if (results.length === 0)
         res.status(200).send({ error: 'No results were found for the given event' })
     res.status(200).send(results);
@@ -61,10 +61,10 @@ router.get('/:id/tags', async (req, res) => {
 
 // add new event
 router.post('/', validateToken, async (req, res) => {
+    await uploader(req, res, storage)
     if (req.tokenData.user_id !== parseInt(req.body.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
-    await uploader(req, res, storage)
     req.body.tags = req.body.tags.split(',')
     const { error } = validations.event.validate(req.body)
     if (error)
@@ -82,10 +82,10 @@ router.post('/', validateToken, async (req, res) => {
 
 // edit existing event
 router.patch('/', validateToken, async (req, res) => {
+    await uploader(req, res, storage)
     if (req.tokenData.user_id !== parseInt(req.body.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
-    await uploader(req, res, storage)
     req.body.tags = req.body.tags.split(',')
     const { error } = validations.event.validate(req.body)
     if (error)
@@ -101,8 +101,9 @@ router.patch('/', validateToken, async (req, res) => {
 
 // delete existing event by event id
 router.delete('/:event_id', validateToken, async (req, res) => {
-    if (req.tokenData.user_id !== parseInt(req.params.user_id))
-    return res.status(401).send({ error: 'Un-Authorized Access' })
+    const eventData = await api.getEventDataById(req.params.event_id)
+    if (req.tokenData.user_id !== parseInt(eventData.artist_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send(error.details[0].message)

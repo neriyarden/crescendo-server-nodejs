@@ -7,8 +7,6 @@ const validateToken = require('../middleware/validateToken')
 
 // get requests data
 router.get('/', validateToken, async (req, res) => {
-    if (req.tokenData.user_id !== parseInt(req.body.user_id))
-        return res.status(401).send({ error: 'Un-Authorized Access' })
     const { error } = validations.searchParams.validate(req.query)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -59,7 +57,8 @@ router.patch('/', validateToken, async (req, res) => {
 
 // delete existing request by request id
 router.delete('/:request_id', validateToken, async (req, res) => {
-    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+    const [ requestData ] = await api.getRequestData(req.params.request_id)
+    if (req.tokenData.user_id !== parseInt(requestData.artist_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
     const { error } = validations.id.validate(req.params)
