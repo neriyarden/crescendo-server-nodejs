@@ -13,7 +13,7 @@ const validateToken = async (req, res, next) => {
         next()
     } catch (err) {
         console.log('err',err);
-        next(new Error('Access Denied. Authentication failed.'))
+        return res.status(403).send({ error: 'Access Denied. Authentication failed.' })
     }
 }
 
