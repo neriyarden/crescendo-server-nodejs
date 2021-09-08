@@ -40,8 +40,6 @@ router.get('/:user_id', async (req, res,) => {
 // edit artist data
 router.patch('/', validateToken, async (req, res) => {
     await uploader(req, res, storage)
-    console.log('req.tokenData.user_id', req.tokenData.user_id);
-    console.log('req.params.user_id', req.body.user_id);
     if (req.tokenData.user_id !== parseInt(req.body.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 

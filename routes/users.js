@@ -68,8 +68,6 @@ router.patch('/', async (req, res) => {
 
 // get user's votes by id
 router.get('/:user_id/votes', validateToken, async (req, res) => {
-    console.log('req.tokenData.user_id', req.tokenData.user_id);
-    console.log('req.params.user_id', req.params.user_id);
     if (req.tokenData.user_id !== parseInt(req.params.user_id))
         return res.status(401).send({ error: 'Un-Authorized Access' })
 
@@ -78,7 +76,6 @@ router.get('/:user_id/votes', validateToken, async (req, res) => {
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.getUserVotes(req.params.user_id)
-    console.log('results');
     if (results.length === 0)
         return res.status(200).send({ error: 'No Votes were found.' })
     res.status(200).send(results);

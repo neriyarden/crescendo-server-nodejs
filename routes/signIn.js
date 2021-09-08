@@ -13,7 +13,6 @@ router.post('/', async (req, res) => {
         return res.send({ error: error.details[0].message })
 
     const userCredentials = await api.validateEmail(req.body.email)
-    console.log('userCredentials', userCredentials);
     if (!userCredentials)
         return res.status(404).send({ error: `This email isn't registered` })
     const {
