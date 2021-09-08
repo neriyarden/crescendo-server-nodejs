@@ -34,6 +34,13 @@ const getRequestsData = async (
     return requests 
 }
 
+// getRequestData
+const getRequestData = async (requestId) => {
+    const requestData = await sqlUtils.query(
+    `select *, artist_id from requests where id = ?`, [requestId]
+    )
+    return requestData
+}
 
 // add new request
 const postNewRequest = async ({ user_id, tour, city, cap }) => {
@@ -130,6 +137,7 @@ const removeVote = async (requestId, user_id) => {
 
 module.exports = {
     getRequestsData,
+    getRequestData,
     postNewRequest,
     updateRequestData,
     deleteExistingRequest,

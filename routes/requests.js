@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const api = require('../DAL/requestsApi');
 const validations = require('../validations/validations')
-const validateCookie = require('../middleware/validateCookie')
+const validateToken = require('../middleware/validateToken')
 
 
 // get requests data
-router.get('/', async (req, res) => {
+router.get('/', validateToken, async (req, res) => {
     const { error } = validations.searchParams.validate(req.query)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -24,20 +24,26 @@ router.get('/', async (req, res) => {
 
 
 // add new request
-router.post('/', validateCookie, async (req, res) => {
+router.post('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.request.validate(req.body)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
 
     const results = await api.postNewRequest(req.body)
     if (!results)
-        res.status(404).send({ error: `Can't create event of unknown artist.` })
+        res.status(404).send({ error: `Can't create request of unknown artist.` })
     res.status(201).send(results);
 })
 
 
 // edit existing request
-router.patch('/', validateCookie, async (req, res) => {
+router.patch('/', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.body.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.request.validate(req.body)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -50,7 +56,11 @@ router.patch('/', validateCookie, async (req, res) => {
 
 
 // delete existing request by request id
-router.delete('/:request_id', validateCookie, async (req, res) => {
+router.delete('/:request_id', validateToken, async (req, res) => {
+    const [ requestData ] = await api.getRequestData(req.params.request_id)
+    if (req.tokenData.user_id !== parseInt(requestData.artist_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -63,7 +73,9 @@ router.delete('/:request_id', validateCookie, async (req, res) => {
 
 
 // add a vote to a request by user id & request id
-router.post('/:request_id/vote/:user_id', validateCookie, async (req, res) => {
+router.post('/:request_id/vote/:user_id', validateToken, async (req, res) => {
+    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
@@ -79,7 +91,10 @@ router.post('/:request_id/vote/:user_id', validateCookie, async (req, res) => {
 
 
 // remove vote from a request by user id & request id
-router.delete('/:request_id/vote/:user_id', validateCookie, async (req, res, next) => {
+router.delete('/:request_id/vote/:user_id', validateToken, async (req, res, next) => {
+    if (req.tokenData.user_id !== parseInt(req.params.user_id))
+        return res.status(401).send({ error: 'Un-Authorized Access' })
+
     const { error } = validations.id.validate(req.params)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
