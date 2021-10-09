@@ -17,8 +17,9 @@ router.get('/', validateToken, async (req, res) => {
         req.query.artist,
         req.query.city,
     )
-    if (!results)
-        res.status(404).send({ error: 'No results were found.' })
+    if (results.length === 0) {
+        return res.status(200).send({ error: 'End of results' })
+    }
     res.status(200).send(results);
 });
 

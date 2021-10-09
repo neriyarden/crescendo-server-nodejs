@@ -30,10 +30,12 @@ router.get('/:user_id', validateToken, async (req, res) => {
 
 // register new user
 router.post('/', async (req, res) => {
+    // 
     const { error } = validations.user.validate(req.body)
     if (error)
         return res.status(400).send({ error: error.details[0].message })
-    // combine the two with promise all + array.every()?
+        
+    // 
     if (!(await api.isUserAvailable('name', req.body.name)))
         return res.status(400).send(
             { error: `The name '${req.body.name}' is already taken.` }
@@ -42,12 +44,16 @@ router.post('/', async (req, res) => {
         return res.status(400).send(
             { error: `We already have a user with the email '${req.body.email}'.` }
         )
+
+    // 
     let hashedPassword
     try {
         hashedPassword = await bcrypt.hash(req.body.password, 12)
     } catch (err) {
         res.status(500).send('Could not create user, please try again.');
     }
+
+    // 
     const [results] = await api.postNewUser({
         ...req.body,
         password: hashedPassword

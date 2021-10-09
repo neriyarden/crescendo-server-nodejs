@@ -24,8 +24,9 @@ router.get('/', async (req, res) => {
         req.query.when,
         req.query.tags
     )
-        if (results.events.length === 0)
-        return res.status(200).send({ error: 'End of results' })
+        if (results.events.length === 0) {
+            return res.status(200).send({ error: 'End of results' })
+        }
         res.status(200).send(results);
 });
 

@@ -12,14 +12,18 @@ const storage = multerStorage('artists')
 // get artists data
 router.get('/', async (req, res) => {
     const { error } = validations.searchParams.validate(req.query)
-    if (error)
+    if (error) {
         return res.status(400).send({ error: error.details[0].message })
+    }
     const results = await api.getArtistsData(
         req.query.size,
         req.query.pageNum,
         req.query.startsWith,
         req.query.searchTerm
     )
+    if (results.length === 0) {
+        return res.status(200).send({ error: 'End of results' })
+    }
     res.status(200).send(results);
 });
 
@@ -27,12 +31,14 @@ router.get('/', async (req, res) => {
 // get a specific artist data
 router.get('/:user_id', async (req, res,) => {
     const { error } = validations.id.validate(req.params)
-    if (error)
+    if (error) {
         return res.status(400).send(error.details[0].message)
+    }
 
     const results = await api.getArtistDataById(req.params.user_id)
-    if (!results)
+    if (!results) {
         res.status(404).send({ error: 'The artist with the given id was not found.' })
+    }
     res.status(200).send(results);
 });
 

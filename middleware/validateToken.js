@@ -1,10 +1,10 @@
-const api = require('../DAL/usersApi');
 const jwt = require('jsonwebtoken')
 
 const validateToken = async (req, res, next) => {
     if(req.method === 'OPTIONS') return next()
     try {
-        const token = req.headers.authorization.replace('Bearer ', '')
+        const authHeader = req.headers.authorization
+        const token = authHeader && authHeader.replace('Bearer ', '')
         if(!token) {
             throw new Error('Access Denied. Authentication failed.')
         }
